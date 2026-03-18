@@ -10,7 +10,7 @@ from typing import Dict, Tuple
 import re
 import PyPDF2
 from openai import OpenAI
-
+from dotenv import load_dotenv
 
 def normalize_text(text: str) -> str:
     """
@@ -257,13 +257,17 @@ async def process_jobs(matcher, jobs):
 
 def main():
 
-    if not os.environ.get("api-key"):
+    load_dotenv()
+
+    api_key = os.getenv("GROQ_API_KEY")
+
+    if not api_key:
 
         print("Set GROQ_API_KEY environment variable")
         return
 
     matcher = GroqMatcher(
-        api_key=os.environ.get("api-key"),
+        api_key=api_key,
         cv_path="./CV_SE.pdf"
     )
 
