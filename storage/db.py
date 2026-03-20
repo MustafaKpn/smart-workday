@@ -1,5 +1,5 @@
 # app/storage/db.py
-from sqlalchemy import MetaData, Table, Column, Integer, String, Text, Float, ForeignKey
+from sqlalchemy import MetaData, Table, Column, Integer, String, Text, Float, ForeignKey, BigInteger
 from app.config import engine  # import the engine from config
 
 metadata = MetaData()
@@ -8,7 +8,7 @@ metadata = MetaData()
 raw_jobs = Table(
     "raw_jobs",
     metadata,
-    Column("id", Integer, primary_key=True),
+    Column("id", BigInteger, primary_key=True, unique=True),
     Column("title", String),
     Column("source", String),
     Column("url", String, unique=True, nullable=False),

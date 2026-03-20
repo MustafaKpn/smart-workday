@@ -11,6 +11,8 @@ from app.config import engine
 from app.storage.db import raw_jobs
 from sqlalchemy import insert
 from urllib.parse import urljoin
+import xxhash
+
 
 class WorkdayScraper:
     """Scraper for Workday-based career sites"""
@@ -116,7 +118,13 @@ class WorkdayScraper:
                 date_elem = await element.query_selector('[data-automation-id="postedOn"] >> dd')
                 posted = await date_elem.inner_text() if date_elem else ""
 
-                stmt = insert(raw_jobs).values(title=title.strip(),
+                subtitle_elem = await element.query_selector('[data-automation-id="subtitle"]')
+                subtitle = await subtitle_elem.inner_text() if subtitle_elem else "Unknown"
+
+                id = xxhash.xxh64(subtitle).intdigest() & 0x7FFFFFFFFFFFFFFF
+
+                stmt = insert(raw_jobs).values(id=id,
+                                               title=title.strip(),
                                                source=self._extract_company_name(base_url),
                                                url=url,
                                                location=location.strip(),
@@ -153,7 +161,7 @@ class WorkdayScraper:
                 des_text = (await paragraphs.nth(i).inner_text()).strip()
                 if des_text:
                     texts.append(des_text)
-            print(" ".join(texts))
+                    
             # Join paragraphs with double newline (or single if you prefer)
             return " ".join(texts)
 
