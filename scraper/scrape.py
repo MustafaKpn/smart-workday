@@ -1,12 +1,16 @@
 """
 Scraper for Workday-based career sites
 """
-
+#app/scraper/scrape.py
 import asyncio
 from typing import List, Dict
 from playwright.async_api import async_playwright
 import json
 import time
+from app.config import engine
+from app.storage.db import raw_jobs
+from sqlalchemy import insert
+from urllib.parse import urljoin
 
 class WorkdayScraper:
     """Scraper for Workday-based career sites"""
@@ -103,17 +107,24 @@ class WorkdayScraper:
                 title = await title_elem.inner_text() if title_elem else "Unknown"
                 
                 url = await title_elem.get_attribute("href") if title_elem else ""
-                if url and not url.startswith("http"):
-                    from urllib.parse import urljoin
-                    url = urljoin(base_url, url)
+                if url.startswith('/'):
+                    url = urljoin(page.url or "", url)
                 
                 location_elem = await element.query_selector('div[data-automation-id="locations"] >> dd')
                 location = await location_elem.inner_text() if location_elem else ""
                 
                 date_elem = await element.query_selector('[data-automation-id="postedOn"] >> dd')
                 posted = await date_elem.inner_text() if date_elem else ""
-                print("{}".format(title.strip()))
+
+                stmt = insert(raw_jobs).values(title=title.strip(),
+                                               source=self._extract_company_name(base_url),
+                                               url=url,
+                                               location=location.strip(),
+                                               description=await self.fetch_description(detail_page, url))
                 
+                with engine.connect() as conn:
+                    conn.execute(stmt)
+                    conn.commit()
                 jobs.append({
                     "title": title.strip(),
                     "url": url,
@@ -122,6 +133,8 @@ class WorkdayScraper:
                     "posted_date": posted.strip(),
                     "description": await self.fetch_description(detail_page, url)
                 })
+
+                # print(jobs)
                 
             except Exception as e:
                 print(f"[-] Error extracting job: {e}")
@@ -131,13 +144,21 @@ class WorkdayScraper:
     
     async def fetch_description(self, page, url: str) -> str:
         try:
-            await page.goto(url, timeout=self.timeout)
+            await page.goto(url, timeout=self.timeout, wait_until="networkidle")
             desc_elem = page.locator('[data-automation-id="jobPostingDescription"]')
-            if await desc_elem.count() > 0:
-                return (await desc_elem.inner_text()).strip()
-            return await page.inner_text("body")
-        except Exception:
-            return ""
+
+            paragraphs = desc_elem.locator("p")
+            texts = []
+            for i in range(await paragraphs.count()):
+                des_text = (await paragraphs.nth(i).inner_text()).strip()
+                if des_text:
+                    texts.append(des_text)
+            print(" ".join(texts))
+            # Join paragraphs with double newline (or single if you prefer)
+            return " ".join(texts)
+
+        except Exception as e:
+            return f"[Error fetching description] {str(e)}"
 
 
     @staticmethod

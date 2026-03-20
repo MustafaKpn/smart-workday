@@ -9,9 +9,11 @@ raw_jobs = Table(
     "raw_jobs",
     metadata,
     Column("id", Integer, primary_key=True),
+    Column("title", String),
     Column("source", String),
     Column("url", String, unique=True, nullable=False),
-    Column("raw_text", Text),
+    Column("description", Text),
+    Column("location", String),
     Column("status", String, default="pending"),  # pending, processing, done, failed
 )
 
@@ -37,5 +39,6 @@ notifications = Table(
     Column("sent", Integer, default=0),
 )
 
-# Initialize tables in the DB
-metadata.create_all(engine)
+if __name__ == "__main__":
+    metadata.create_all(engine)
+    print("Tables created.")
