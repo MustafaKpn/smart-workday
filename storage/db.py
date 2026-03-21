@@ -10,9 +10,8 @@ raw_jobs = Table(
     metadata,
     Column("id", BigInteger, primary_key=True, unique=True),
     Column("title", String),
-    Column("source", String),
+    Column("company", String),
     Column("url", String, unique=True, nullable=False),
-    Column("description", Text),
     Column("location", String),
     Column("status", String, default="pending"),  # pending, processing, done, failed
 )
@@ -22,11 +21,8 @@ parsed_jobs = Table(
     "parsed_jobs",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("raw_job_id", Integer, ForeignKey("raw_jobs.id")),
-    Column("title", String),
-    Column("company", String),
-    Column("location", String),
-    Column("description", Text),
+    Column("raw_job_id", BigInteger, ForeignKey("raw_jobs.id")),
+    Column("reasoning", Text),
     Column("score", Float),
 )
 
