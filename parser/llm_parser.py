@@ -11,7 +11,7 @@ from typing import Dict, Tuple
 import re
 import PyPDF2
 from openai import OpenAI
-from app.utils.build_prompt import _build_prompt
+from app.utils.llm_prompt import build_prompt
 
 def normalize_text(text: str) -> str:
     """

@@ -4,7 +4,7 @@ from typing import Dict
 from app.utils.fetch_description import fetch_description
 
 
-async def _build_prompt(job: Dict, cv_text: str) -> str:
+async def build_prompt(job: Dict, cv_text: str) -> str:
         """
         Build LLM prompt
         """
