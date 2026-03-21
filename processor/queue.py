@@ -2,7 +2,7 @@
 
 from sqlalchemy import text
 
-def claim_jobs(conn, limit=10):
+def claim_jobs(conn):
     """
     Atomically claim jobs using FOR UPDATE SKIP LOCKED.
     Prevents multiple workers processing same job.
@@ -12,11 +12,11 @@ def claim_jobs(conn, limit=10):
         SET status = 'processing'
         WHERE id IN (
             SELECT id FROM raw_jobs
-            WHERE status = 'pending'
+            WHERE status = 'pending' OR status='failed'
             LIMIT :limit
             FOR UPDATE SKIP LOCKED
         )
         RETURNING *
-    """), {"limit": limit})
+    """))
 
     return [dict(row._mapping) for row in result]
