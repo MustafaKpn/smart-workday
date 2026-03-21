@@ -71,7 +71,7 @@ class GroqMatcher:
         Evaluate job relevance against CV
         """
 
-        prompt = await _build_prompt(job, self.cv_text)
+        prompt = await build_prompt(job, self.cv_text)
 
         try:
 
