@@ -2,11 +2,8 @@
 Scraper for Workday-based career sites
 """
 #app/scraper/scrape.py
-import asyncio
 from typing import List, Dict
 from playwright.async_api import async_playwright
-import json
-import time
 from app.config import engine
 from app.storage.db import raw_jobs
 from sqlalchemy import insert
@@ -32,9 +29,6 @@ class WorkdayScraper:
                 user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
             )
             page = await context.new_page()
-            detail_page = await context.new_page()
-
-            jobs_dict = {"jobs": []}
             
             try:
                 await page.goto(url, timeout=self.timeout, wait_until="networkidle")
@@ -45,27 +39,30 @@ class WorkdayScraper:
                                             timeout=self.timeout)
                 
                 if self.location:
-                    await page.click("[data-automation-id='distanceLocation']")
-                    await page.wait_for_selector("[data-automation-id='stickyContainerHolder']")
+                    try:
+                        await page.click("[data-automation-id='distanceLocation']")
+                        await page.wait_for_selector("[data-automation-id='stickyContainerHolder']")
 
-                    all_locations = page.locator("[data-automation-id='Locations-checkboxgroup']")
-                    option = all_locations.locator(f':text-matches("{self.location}", "i")').first
+                        all_locations = page.locator("[data-automation-id='Locations-checkboxgroup']")
+                        option = all_locations.locator(f':text-matches("{self.location}", "i")').first
 
-                    # Check if this option exists
-                    if await option.count() > 0:
-                        checkbox = option.locator("input[type=checkbox]")
+                        # Check if this option exists
+                        if await option.count() > 0:
+                            checkbox = option.locator("input[type=checkbox]")
 
-                        # If the checkbox exists, check it; else, click the option
-                        if await checkbox.count() > 0:
-                            await checkbox.check()
+                            # If the checkbox exists, check it; else, click the option
+                            if await checkbox.count() > 0:
+                                await checkbox.check()
+                            else:
+                                await option.click()
                         else:
-                            await option.click()
-                    else:
-                        print(f"[-] Location '{self.location}' not found, skipping filter.")
-                        return []
+                            print(f"[-] Location '{self.location}' not found, skipping filter.")
+                            return []
 
-                    await page.click('[data-uxi-element-id="filterToolbar_viewAllJobsButton"]')
-                    await page.wait_for_timeout(1000)
+                        await page.click('[data-uxi-element-id="filterToolbar_viewAllJobsButton"]')
+                        await page.wait_for_timeout(1000)
+                    except:
+                        pass
 
 
                 buttons = page.locator("ol[role=list] button")
@@ -77,15 +74,9 @@ class WorkdayScraper:
                     await btn.click()
                     await page.wait_for_timeout(2000)
 
-                    jobs = await self._extract_jobs(page, detail_page, url)
-                    jobs_dict["jobs"].extend(jobs)
-                        
-                with open("./jobs.json", "w") as f:
-                    json.dump(jobs_dict, f, indent=4)
+                    await self._extract_jobs(page, url)
                 
-                
-                print(f"[+] Found {len(jobs_dict['jobs'])} jobs")
-                return jobs_dict
+                return
             
             except Exception as e:
                 print(f"[-] Error scraping {url}: {e}")
@@ -95,9 +86,8 @@ class WorkdayScraper:
                 await browser.close()
 
 
-    async def _extract_jobs(self, page, detail_page, base_url: str) -> List[Dict]:
+    async def _extract_jobs(self, page, base_url: str):
         """Extract job data from Workday page"""
-        jobs = []
 
         job_elements = await page.query_selector_all(
             'section[data-automation-id="jobResults"] ul[role="list"] > li'
@@ -122,52 +112,21 @@ class WorkdayScraper:
                 subtitle = await subtitle_elem.inner_text() if subtitle_elem else "Unknown"
 
                 id = xxhash.xxh64(subtitle).intdigest() & 0x7FFFFFFFFFFFFFFF
-
                 stmt = insert(raw_jobs).values(id=id,
                                                title=title.strip(),
-                                               source=self._extract_company_name(base_url),
+                                               company=self._extract_company_name(base_url),
                                                url=url,
-                                               location=location.strip(),
-                                               description=await self.fetch_description(detail_page, url))
+                                               location=location.strip())
                 
                 with engine.connect() as conn:
                     conn.execute(stmt)
                     conn.commit()
-                jobs.append({
-                    "title": title.strip(),
-                    "url": url,
-                    "company": self._extract_company_name(base_url),
-                    "location": location.strip(),
-                    "posted_date": posted.strip(),
-                    "description": await self.fetch_description(detail_page, url)
-                })
 
-                # print(jobs)
-                
             except Exception as e:
                 print(f"[-] Error extracting job: {e}")
                 continue
         
-        return jobs
-    
-    async def fetch_description(self, page, url: str) -> str:
-        try:
-            await page.goto(url, timeout=self.timeout, wait_until="networkidle")
-            desc_elem = page.locator('[data-automation-id="jobPostingDescription"]')
-
-            paragraphs = desc_elem.locator("p")
-            texts = []
-            for i in range(await paragraphs.count()):
-                des_text = (await paragraphs.nth(i).inner_text()).strip()
-                if des_text:
-                    texts.append(des_text)
-                    
-            # Join paragraphs with double newline (or single if you prefer)
-            return " ".join(texts)
-
-        except Exception as e:
-            return f"[Error fetching description] {str(e)}"
-
+        return 
 
     @staticmethod
     def _extract_company_name(url: str) -> str:
@@ -176,11 +135,4 @@ class WorkdayScraper:
         if len(parts) > 0:
             return parts[0].split("//")[-1].capitalize()
         return "Unknown"
-
-
-scraper = WorkdayScraper("Cambridge")
-# jobs = asyncio.run(scraper.scrape("https://sanger.wd103.myworkdayjobs.com/en-GB/WellcomeSangerInstitute"))
-jobs = asyncio.run(scraper.scrape("https://illumina.wd1.myworkdayjobs.com/en-US/illumina-careers?redirect=/en-US/illumina-careers/userHome"))
-
-
 
