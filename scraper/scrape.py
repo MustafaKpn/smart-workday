@@ -6,7 +6,7 @@ from typing import List, Dict
 from playwright.async_api import async_playwright
 from app.config import engine
 from app.storage.db import raw_jobs
-from sqlalchemy import insert
+from sqlalchemy.dialects.postgresql import insert
 from urllib.parse import urljoin
 import xxhash
 
@@ -117,6 +117,8 @@ class WorkdayScraper:
                                                company=self._extract_company_name(base_url),
                                                url=url,
                                                location=location.strip())
+                stmt = stmt.on_conflict_do_nothing(index_elements=['id'])
+                
                 
                 with engine.connect() as conn:
                     conn.execute(stmt)

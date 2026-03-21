@@ -4,19 +4,15 @@ from sqlalchemy import text
 
 def claim_jobs(conn):
     """
-    Atomically claim jobs using FOR UPDATE SKIP LOCKED.
-    Prevents multiple workers processing same job.
+    Get ALL jobs that need processing and mark them as 'processing'.
+    Uses locking to prevent other workers from grabbing the same jobs.
     """
     result = conn.execute(text("""
         UPDATE raw_jobs
         SET status = 'processing'
-        WHERE id IN (
-            SELECT id FROM raw_jobs
-            WHERE status = 'pending' OR status='failed'
-            LIMIT :limit
-            FOR UPDATE SKIP LOCKED
-        )
+        WHERE status IN ('pending', 'failed')
         RETURNING *
     """))
-
-    return [dict(row._mapping) for row in result]
+    
+    jobs = [dict(row._mapping) for row in result]
+    return jobs
