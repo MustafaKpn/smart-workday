@@ -7,20 +7,12 @@ Match jobs against CV using Groq LLM
 import json
 import asyncio
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict
 import re
 import PyPDF2
 from openai import OpenAI
 from app.utils.llm_prompt import build_prompt
-
-def normalize_text(text: str) -> str:
-    """
-    Normalize text to reduce LLM variability.
-    """
-    text = text.replace("\n", " ").strip()
-    text = re.sub(r"\s+", " ", text)
-    return text
-
+from app.utils.normalize_text import normalize_text
 
 class GroqMatcher:
     """
@@ -93,12 +85,16 @@ class GroqMatcher:
             )
 
             text = response.choices[0].message.content
+            result = self._parse_response(text)
+            result["id"] = job.get("id")
 
-            return self._parse_response(text)
+            return result
 
         except Exception as e:
 
-            return {"score": 0.0, "reasoning": f"Error: {str(e)}"}
+            return {"job": job.get('id'),
+                    "score": 0.0,
+                    "reasoning": f"Error: {str(e)}"}
 
     def _parse_response(self, response: str):
         """Parse LLM response - non-recursive with fallbacks."""
@@ -160,16 +156,14 @@ class GroqMatcher:
         print(f"Response preview: {response[:300]}")
         return {"score": 0.0, "reasoning": "Failed to parse JSON"}
 
+    async def process_job(self, job):
+        semaphore = asyncio.Semaphore(8)
 
+        async def safe_match(job):
+            async with semaphore:
+                return await self.match_job(job)
 
-async def process_job(matcher, job):
-    semaphore = asyncio.Semaphore(8)
-
-    async def safe_match(job):
-        async with semaphore:
-            return await matcher.match_job(job)
-
-    return await safe_match(job)
+        return await safe_match(job)
 
 
 

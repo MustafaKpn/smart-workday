@@ -1,5 +1,5 @@
 # app/storage/db.py
-from sqlalchemy import MetaData, Table, Column, Integer, String, Text, Float, ForeignKey, BigInteger
+from sqlalchemy import MetaData, Table, Column, Integer, String, Text, Float, ForeignKey, BigInteger, DateTime
 from app.config import engine  # import the engine from config
 
 metadata = MetaData()
@@ -14,16 +14,17 @@ raw_jobs = Table(
     Column("url", String, unique=True, nullable=False),
     Column("location", String),
     Column("status", String, default="pending"),  # pending, processing, done, failed
+    Column("processed_at", DateTime)
 )
 
 # Parsed jobs table
 parsed_jobs = Table(
     "parsed_jobs",
     metadata,
-    Column("id", Integer, primary_key=True),
-    Column("raw_job_id", BigInteger, ForeignKey("raw_jobs.id")),
+    Column("id", BigInteger, ForeignKey("raw_jobs.id"), primary_key=True),
     Column("reasoning", Text),
     Column("score", Float),
+    Column("created_at", DateTime)
 )
 
 # Notifications table

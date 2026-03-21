@@ -74,9 +74,9 @@ class WorkdayScraper:
                     await btn.click()
                     await page.wait_for_timeout(2000)
 
-                    await self._extract_jobs(page, url)
+                    all_jobs = await self._extract_jobs(page, url)
                 
-                return
+                return all_jobs
             
             except Exception as e:
                 print(f"[-] Error scraping {url}: {e}")
@@ -89,6 +89,7 @@ class WorkdayScraper:
     async def _extract_jobs(self, page, base_url: str):
         """Extract job data from Workday page"""
 
+        jobs = []
         job_elements = await page.query_selector_all(
             'section[data-automation-id="jobResults"] ul[role="list"] > li'
         )
@@ -105,30 +106,25 @@ class WorkdayScraper:
                 location_elem = await element.query_selector('div[data-automation-id="locations"] >> dd')
                 location = await location_elem.inner_text() if location_elem else ""
                 
-                date_elem = await element.query_selector('[data-automation-id="postedOn"] >> dd')
-                posted = await date_elem.inner_text() if date_elem else ""
-
                 subtitle_elem = await element.query_selector('[data-automation-id="subtitle"]')
                 subtitle = await subtitle_elem.inner_text() if subtitle_elem else "Unknown"
 
                 id = xxhash.xxh64(subtitle).intdigest() & 0x7FFFFFFFFFFFFFFF
-                stmt = insert(raw_jobs).values(id=id,
-                                               title=title.strip(),
-                                               company=self._extract_company_name(base_url),
-                                               url=url,
-                                               location=location.strip())
-                stmt = stmt.on_conflict_do_nothing(index_elements=['id'])
+
+                jobs.append({
+                    'id': id,
+                    'title': title.strip(),
+                    'company': self._extract_company_name(base_url),
+                    'url': url,
+                    'location': location.strip()
+                })
                 
-                
-                with engine.connect() as conn:
-                    conn.execute(stmt)
-                    conn.commit()
 
             except Exception as e:
                 print(f"[-] Error extracting job: {e}")
                 continue
         
-        return 
+        return jobs
 
     @staticmethod
     def _extract_company_name(url: str) -> str:
