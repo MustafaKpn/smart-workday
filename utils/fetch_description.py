@@ -1,8 +1,12 @@
+#app/utils/fetch_description.py
+import logging
 from playwright.async_api import async_playwright
 
+logger = logging.getLogger("__name__")
 
 
 async def fetch_description(url: str) -> str:
+    logger.info(f"Fetching description for url: {url}")
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
@@ -25,6 +29,7 @@ async def fetch_description(url: str) -> str:
             return " ".join(texts)
 
         except Exception as e:
+            logger.error
             return f"[Error fetching description] {str(e)}"
     
 

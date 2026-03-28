@@ -1,6 +1,6 @@
 #app/storage/JobRepository.py
 
-from typing import List, Dict
+from typing import List, Dict, Optional
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import insert
 
@@ -46,7 +46,6 @@ class JobRepository:
     
     def mark_completed(self, job_id: int, score: float, reasoning: str, extracted: Dict = None):
         """Mark job as completed and save results to parsed_jobs"""
-        import json
         
         with self.engine.connect() as conn:
             # Update status in raw_jobs
@@ -71,3 +70,13 @@ class JobRepository:
             })
             
             conn.commit()
+
+
+        def get_job_by_id(self, job_id: int) -> Optional[Dict]:
+            """Get a single job by ID"""
+            with self.engine.connect() as conn:
+                result = conn.execute(text("""
+                    SELECT * FROM raw_jobs WHERE id = :id
+                """), {"id": job_id})
+                row = result.fetchone()
+                return dict(row._mapping) if row else None

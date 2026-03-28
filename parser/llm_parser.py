@@ -13,6 +13,9 @@ import PyPDF2
 from openai import OpenAI
 from app.utils.llm_prompt import build_prompt
 from app.utils.normalize_text import normalize_text
+import logging
+
+logger = logging.getLogger(__name__)
 
 class GroqMatcher:
     """
@@ -54,7 +57,7 @@ class GroqMatcher:
 
         except Exception as e:
 
-            print("CV read error:", e)
+            logger.error("CV read error:", e)
 
             return ""
 
@@ -91,6 +94,7 @@ class GroqMatcher:
             return result
 
         except Exception as e:
+            logger.error(f"Error processing job with id: {job.get('id')}\nError: {str(e)}")
 
             return {"job": job.get('id'),
                     "score": 0.0,
@@ -123,7 +127,6 @@ class GroqMatcher:
             data = json.loads(response)
             score = float(data.get("score", 0))
             reasoning = data.get("reasoning", "")
-            print(response)
             return {"score": score, "reasoning": reasoning}
         except json.JSONDecodeError:
             pass
@@ -152,8 +155,8 @@ class GroqMatcher:
             return {"score": score, "reasoning": reasoning}
         
         # Final fallback: return error
-        print(f"[!] Failed to parse response")
-        print(f"Response preview: {response[:300]}")
+        logger.error(f"Failed to parse response")
+        logger.info(f"Response preview: {response[:300]}")
         return {"score": 0.0, "reasoning": "Failed to parse JSON"}
 
     async def process_job(self, job):

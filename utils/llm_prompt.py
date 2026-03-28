@@ -2,12 +2,15 @@
 
 from typing import Dict
 from app.utils.fetch_description import fetch_description
+import logging
 
+logger = logging.getLogger(__name__)
 
 async def build_prompt(job: Dict, cv_text: str) -> str:
         """
         Build LLM prompt
         """
+        logger.info(f"Building LLM prompt for job with id: {job.get('id')}")
 
         description = await fetch_description(job.get('url'))
 

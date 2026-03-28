@@ -9,7 +9,10 @@ from app.storage.db import raw_jobs
 from sqlalchemy.dialects.postgresql import insert
 from urllib.parse import urljoin
 import xxhash
+import logging
 
+logger = logging.getLogger(__name__)
+logger.info("app/scrape/scrape.py")
 
 class WorkdayScraper:
     """Scraper for Workday-based career sites"""
@@ -21,7 +24,7 @@ class WorkdayScraper:
 
     async def scrape(self, url: str) -> List[Dict]:
         """Scrape jobs from a Workday career site"""
-        print(f"[*] Scraping: {url}")
+        logger.info(f"Scraping: {url}")
         
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=self.headless)
@@ -56,7 +59,7 @@ class WorkdayScraper:
                             else:
                                 await option.click()
                         else:
-                            print(f"[-] Location '{self.location}' not found, skipping filter.")
+                            logger.warning(f"Location '{self.location}' not found, skipping filter.")
                             return []
 
                         await page.click('[data-uxi-element-id="filterToolbar_viewAllJobsButton"]')
@@ -79,7 +82,7 @@ class WorkdayScraper:
                 return all_jobs
             
             except Exception as e:
-                print(f"[-] Error scraping {url}: {e}")
+                logger.error(f"Error scraping {url}: {e}")
                 return []
             
             finally:
@@ -118,10 +121,12 @@ class WorkdayScraper:
                     'url': url,
                     'location': location.strip()
                 })
+
+                logger.info(f"Scraped job with id: {id}")
                 
 
             except Exception as e:
-                print(f"[-] Error extracting job: {e}")
+                logger.error(f"Error extracting job: {e}")
                 continue
         
         return jobs
