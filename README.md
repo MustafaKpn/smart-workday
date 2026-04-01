@@ -49,7 +49,6 @@ Follow these steps to get `smart-workday` up and running on your local machine:
 3.  **Install Dependencies**:
     Install the necessary Python packages.
     ```bash
-    # If you have a requirements.txt
     pip install -r requirements.txt
     ```
 
