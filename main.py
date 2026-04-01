@@ -1,105 +1,82 @@
+from pathlib import Path
+
 from app.config import engine
-from app.storage.db import raw_jobs, parsed_jobs
 from app.parser.llm_parser import GroqMatcher
 from app.utils.logger import setup_logging
 from app.storage.JobRepository import JobRepository
-
-# from app.filter.criteria import passes_criteria
-# from app.notifier.telegram import send_job
+from app.telegram.telegramnotifier import TelegramNotifier
+from app.utils.telegrammsg import build_telegram_message
+from app.utils.config_loader import load_active_targets
 from app.scraper.scrape import WorkdayScraper
-from sqlalchemy import update
 from dotenv import load_dotenv
 import asyncio
 import os
 import logging
-
 
 setup_logging()
 
 logger = logging.getLogger(__name__)
 
 
-load_dotenv("app/.env")
+load_dotenv(Path(__file__).parent / "app/.env")
 api_key = os.getenv("GROQ_API_KEY")
+bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+chat_id = os.getenv("TELEGRAM_CHAT_ID")
+
 
 matcher = GroqMatcher(
     api_key=api_key,
-    cv_path="./app/CV_SE.pdf"
+    cv_path="./CV.pdf"
 )
-
-# jobs = asyncio.run(scraper.scrape("https://sanger.wd103.myworkdayjobs.com/en-GB/WellcomeSangerInstitute"))
-# jobs = asyncio.run(scraper.scrape("https://illumina.wd1.myworkdayjobs.com/en-US/illumina-careers?redirect=/en-US/illumina-careers/userHome"))
 
 
 async def process_jobs():
-    scraper = WorkdayScraper("Cambridge")
-    await scraper.scrape("https://sanger.wd103.myworkdayjobs.com/en-GB/WellcomeSangerInstitute")
+    notifier = TelegramNotifier(token=bot_token, chat_id=chat_id)
+    targets = load_active_targets(Path(__file__).parent / "targets.toml")
+    repo = JobRepository(engine)
 
-    # Step 1: claim jobs atomically
-    with engine.begin() as conn:
-        jobs = JobRepository.claim_jobs(conn)
-
-    if not jobs:
-        print("[*] No jobs to process")
-        return
-
-    print(f"[*] Processing {len(jobs)} jobs")
-
-    for job in jobs:
+    for target in targets:
         try:
-            print("Before LLM processing: {}".format(job))
-            # Step 2: run LLM
-            parsed = await matcher.process_job(job)
+            scraper = WorkdayScraper(target.location_filter)
+            jobs = await scraper.scrape(target.url)
+            repo.bulk_insert(jobs)
+            logger.info(f"Scraped {len(jobs)} jobs from {target.name}")
+            jobs_to_process = repo.claim_jobs()
+            logger.info(f"Processing {len(jobs_to_process)} jobs")
 
-            # Step 3: store results
-            with engine.begin() as conn:
-                conn.execute(parsed_jobs.insert().values(
-                    raw_job_id=job["id"],
-                    reasoning=parsed["reasoning"],
-                    score=parsed["score"],
-                ))
+            if not jobs_to_process:
+                logger.warning("No jobs to process")
+                return
+            
+            for job in jobs_to_process:
+                try:
+                    # Step 1: run LLM
+                    parsed = await matcher.process_job(job)
+                    logger.info(f"Processed job {job['id']} with score {parsed.get('score')}")
 
-                # Step 4: mark done
-                conn.execute(
-                    update(raw_jobs)
-                    .where(raw_jobs.c.id == job["id"])
-                    .values(status="done")
-                )
+                    # Step 2: save results
+                    repo.mark_completed(parsed.get('id'), parsed.get('score'), parsed.get('reasoning'))
 
-            # # Step 5: notify
-            # if passes_criteria(parsed):
-            #     send_job(parsed)
+                    # Step 3: if meets criteria, send Telegram message
+                    if float(parsed.get("score", 0)) >= 2:
+                        job_info = repo.get_job_by_id(job['id'])
+                        logger.info(f"Job {job['id']} passed criteria with score {parsed.get('score')}")
+                        message = build_telegram_message(job_info, parsed)
+                        notifier.send_markdown(message)
+
+
+                except Exception as e:
+                    logger.error(f"Error processing job {job['id']}: {e}")
+
+                    # mark failed
+                    repo.mark_failed(job['id'])
 
         except Exception as e:
-            print(f"[ERROR] Job {job['id']}: {e}")
+            logger.error(f"Scrape failed for {target.name}: {e}")
 
-            # Step 6: mark failed
-            with engine.begin() as conn:
-                conn.execute(
-                    update(raw_jobs)
-                    .where(raw_jobs.c.id == job["id"])
-                    .values(status="failed")
-                )
-
-
-async def test():
-    from app.storage.JobRepository import JobRepository
-
-    repo = JobRepository(engine)
-    jobs = await WorkdayScraper('Cambridge').scrape("https://sanger.wd103.myworkdayjobs.com/en-GB/WellcomeSangerInstitute")
-    repo.bulk_insert(jobs)
-    job1 = repo.claim_jobs(engine)[0]
-
-    processed = await matcher.process_job(job1)
-    print(processed)
-
-    repo.mark_completed(processed.get('id'), processed.get('score'), processed.get('reasoning'))
-    
-    return
 
 async def main():
-    await test()
-    # await process_jobs()
+    await process_jobs()
 
 if __name__ == "__main__":
     asyncio.run(main())
