@@ -20,13 +20,13 @@ Before you begin, ensure you have the following installed:
 
 *   **Python 3.8+**: The project is built using Python.
 *   **Git**: For cloning the repository.
-*   **pip**: Python package installer (usually comes with Python).
+*   **pip3**: Python package installer (usually comes with Python).
 
 
 To install all dependencies (assuming you created `requirements.txt`):
 
 ```bash
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 ## 🚀 Installation & Setup Instructions
@@ -42,14 +42,14 @@ Follow these steps to get `smart-workday` up and running on your local machine:
 2.  **Create a Virtual Environment**:
     It's highly recommended to use a virtual environment to manage project dependencies.
     ```bash
-    python -m venv venv
+    python3 -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
 3.  **Install Dependencies**:
     Install the necessary Python packages.
     ```bash
-    pip install -r requirements.txt
+    pip3 install -r requirements.txt
     ```
 
 4.  **Configure Environment Variables**:
