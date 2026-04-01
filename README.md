@@ -64,6 +64,7 @@ Follow these steps to get `smart-workday` up and running on your local machine:
     *   **`TELEGRAM_BOT_TOKEN`**: Create a new bot using [@BotFather](https://t.me/botfather) on Telegram to get your unique token.
     *   **`TELEGRAM_CHAT_ID`**: After you obtain your bot token, send a message to the bot first, then open this URL in a browser https://api.telegram.org/bot{our_bot_token}/getUpdates
    You will get a JSON response. You can find the chat ID there.
+A full guide on how to get the Telegram bot token, and chat ID can be found here: https://gist.github.com/nafiesl/4ad622f344cd1dc3bb1ecbe468ff9f8a
 
 5.  **Define Scraping Targets**:
     The system needs to know which Workday URLs to scrape and what criteria to use. You will need to edit the `targets.toml` file according to your need.
