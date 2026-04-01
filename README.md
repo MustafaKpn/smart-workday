@@ -68,7 +68,7 @@ Follow these steps to get `smart-workday` up and running on your local machine:
         A full guide on how to get the Telegram bot token, and chat ID can be found here: https://gist.github.com/nafiesl/4ad622f344cd1dc3bb1ecbe468ff9f8a
 
 5.  **Define Scraping Targets**:
-    The system needs to know which Workday URLs to scrape and what criteria to use. You will need to edit the `targets.toml` file according to your need.
+    The system needs to know which Workday URLs to scrape and what criteria to use. You will need to edit the `targets.toml` file according to your needs. Make sure that the url is the jobs listing url of the company you are targeting.
     *Example:*
     ```toml
     [[targets]]
