@@ -22,13 +22,6 @@ Before you begin, ensure you have the following installed:
 *   **Git**: For cloning the repository.
 *   **pip3**: Python package installer (usually comes with Python).
 
-
-To install all dependencies (assuming you created `requirements.txt`):
-
-```bash
-pip3 install -r requirements.txt
-```
-
 ## 🚀 Installation & Setup Instructions
 
 Follow these steps to get `smart-workday` up and running on your local machine:
