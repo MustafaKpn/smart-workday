@@ -72,11 +72,11 @@ class JobRepository:
             conn.commit()
 
 
-        def get_job_by_id(self, job_id: int) -> Optional[Dict]:
-            """Get a single job by ID"""
-            with self.engine.connect() as conn:
-                result = conn.execute(text("""
-                    SELECT * FROM raw_jobs WHERE id = :id
-                """), {"id": job_id})
-                row = result.fetchone()
-                return dict(row._mapping) if row else None
+    def get_job_by_id(self, job_id: int) -> Optional[Dict]:
+        """Get a single job by ID"""
+        with self.engine.connect() as conn:
+            result = conn.execute(text("""
+                SELECT * FROM raw_jobs WHERE id = :id
+            """), {"id": job_id})
+            row = result.fetchone()
+            return dict(row._mapping) if row else None
