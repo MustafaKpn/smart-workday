@@ -18,7 +18,7 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 
-load_dotenv(Path(__file__).parent / "app/.env")
+load_dotenv(Path(__file__).parent / ".env")
 api_key = os.getenv("GROQ_API_KEY")
 bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
 chat_id = os.getenv("TELEGRAM_CHAT_ID")
