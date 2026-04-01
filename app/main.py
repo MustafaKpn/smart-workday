@@ -12,13 +12,15 @@ from dotenv import load_dotenv
 import asyncio
 import os
 import logging
+import subprocess
 
+# Run another Python script
+subprocess.run(["python3", "-m", "app.storage.db"])
 setup_logging()
 
 logger = logging.getLogger(__name__)
 
-
-load_dotenv(Path(__file__).parent / ".env")
+load_dotenv(Path(__file__).parent.parent / ".env")
 api_key = os.getenv("GROQ_API_KEY")
 bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
 chat_id = os.getenv("TELEGRAM_CHAT_ID")

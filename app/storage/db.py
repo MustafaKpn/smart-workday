@@ -27,4 +27,3 @@ parsed_jobs = Table(
 
 if __name__ == "__main__":
     metadata.create_all(engine)
-    print("Tables created.")
