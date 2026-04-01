@@ -83,6 +83,9 @@ Follow these steps to get `smart-workday` up and running on your local machine:
     ```
     *Note: The exact format and location of this `targets` file depend on the implementation of `load_active_targets`. This is a suggested structure.*
 
+6. **Use Your CV**:
+   You can find in the root directory of this project my CV. I didn't care much about hiding it and I thought it would be a good example on where to place yours. You should replace my CV with yours. Unless you want to get notified about jobs that match my CV :)
+
 ## ➡️ Usage Examples
 
 ### Running the Scraper Manually
