@@ -1,0 +1,11 @@
+[[targets]]
+name = "Sanger Institute"
+url = "https://sanger.wd103.myworkdayjobs.com/en-GB/WellcomeSangerInstitute"
+location_filter = "Cambridge"
+enabled = true
+
+[[targets]]
+name = "Illumina"
+url = "https://illumina.wd1.myworkdayjobs.com/en-US/illumina-careers"
+location_filter = "Cambridge"
+enabled = true
