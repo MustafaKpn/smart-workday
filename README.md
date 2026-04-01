@@ -56,15 +56,14 @@ Follow these steps to get `smart-workday` up and running on your local machine:
     Create a `.env` file in the root of your project directory to store sensitive information and configurations.
     ```ini
     # .env
-    DATABASE_URL="sqlite:///jobs.db" # Optional: Path to your SQLite DB, or a full DB URL (e.g., PostgreSQL)
     GROQ_API_KEY="YOUR_GROQ_API_KEY"
     TELEGRAM_BOT_TOKEN="YOUR_TELEGRAM_BOT_TOKEN"
     TELEGRAM_CHAT_ID="YOUR_TELEGRAM_CHAT_ID" # Your user ID or a group chat ID
     ```
     *   **`GROQ_API_KEY`**: Obtain this from the [Groq console](https://console.groq.com/). This is crucial for the `GroqMatcher` to function.
     *   **`TELEGRAM_BOT_TOKEN`**: Create a new bot using [@BotFather](https://t.me/botfather) on Telegram to get your unique token.
-    *   **`TELEGRAM_CHAT_ID`**: Find your Telegram chat ID. You can forward a message from your bot to [@get_id_bot](https://t.me/get_id_bot) or use a similar method.
-    *   **`DATABASE_URL`**: (Optional) Overrides the default SQLite database path. You can specify a different path or connect to a different database system (e.g., PostgreSQL, MySQL) using its respective SQLAlchemy URL.
+    *   **`TELEGRAM_CHAT_ID`**: After you obtain your bot token, send a message to the bot first, then open this URL in a browser https://api.telegram.org/bot{our_bot_token}/getUpdates
+   You will get a JSON response. You can find the chat ID there.
 
 5.  **Define Scraping Targets**:
     The system needs to know which Workday URLs to scrape and what criteria to use. Based on `app.utils.config_loader.load_active_targets`, you will need to provide a configuration file (e.g., `targets.json`).
