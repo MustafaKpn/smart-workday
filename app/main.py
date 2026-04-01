@@ -32,7 +32,7 @@ matcher = GroqMatcher(
 
 async def process_jobs():
     notifier = TelegramNotifier(token=bot_token, chat_id=chat_id)
-    targets = load_active_targets(Path(__file__).parent / "targets.toml")
+    targets = load_active_targets(Path(__file__).parent.parent / "targets.toml")
     repo = JobRepository(engine)
 
     for target in targets:
