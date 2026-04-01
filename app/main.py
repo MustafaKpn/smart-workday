@@ -14,7 +14,6 @@ import os
 import logging
 import subprocess
 
-# Run another Python script
 subprocess.run(["python3", "-m", "app.storage.db"])
 setup_logging()
 
