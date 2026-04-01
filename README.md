@@ -88,7 +88,7 @@ Follow these steps to get `smart-workday` up and running on your local machine:
 To execute the job scraping, parsing, and notification process on demand:
 
 ```bash
-python app/main.py
+python3 -m app.main
 ```
 
 This command performs the following actions:
