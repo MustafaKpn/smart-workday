@@ -1,4 +1,4 @@
-# smart-workday 🚀
+# Smart Workday 
 
 [![GitHub Actions Workflow Status](https://github.com/MustafaKpn/smart-workday/actions/workflows/scrape.yml/badge.svg)](https://github.com/MustafaKpn/smart-workday/actions/workflows/scrape.yml)
 
@@ -20,26 +20,7 @@ Before you begin, ensure you have the following installed:
 
 *   **Python 3.8+**: The project is built using Python.
 *   **Git**: For cloning the repository.
-*   **pip**: Python package installer (usually comes with Python).
-
-The project relies on several Python libraries. It's recommended to create a `requirements.txt` file and install them, or you can install them individually:
-
-```bash
-# Recommended: Create a requirements.txt with the following
-# aiohttp         # For async HTTP requests (common for scrapers)
-# beautifulsoup4  # For HTML parsing (common for scrapers)
-# groq            # For Groq LLM API interaction
-# python-dotenv   # For loading environment variables
-# python-telegram-bot # For sending Telegram notifications
-# sqlalchemy      # For database ORM
-# # You might also need other HTTP client libraries like `requests` or `httpx` depending on scraper implementation
-```
-
-To install all dependencies (assuming you created `requirements.txt`):
-
-```bash
-pip install -r requirements.txt
-```
+*   **pip3**: Python package installer (usually comes with Python).
 
 ## 🚀 Installation & Setup Instructions
 
@@ -54,55 +35,51 @@ Follow these steps to get `smart-workday` up and running on your local machine:
 2.  **Create a Virtual Environment**:
     It's highly recommended to use a virtual environment to manage project dependencies.
     ```bash
-    python -m venv venv
+    python3 -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
 3.  **Install Dependencies**:
     Install the necessary Python packages.
     ```bash
-    # If you have a requirements.txt
-    pip install -r requirements.txt
-
-    # If installing individually (based on inferred dependencies)
-    # pip install sqlalchemy python-dotenv aiohttp beautifulsoup4 groq python-telegram-bot
+    pip3 install -r requirements.txt
     ```
 
 4.  **Configure Environment Variables**:
     Create a `.env` file in the root of your project directory to store sensitive information and configurations.
     ```ini
     # .env
-    DATABASE_URL="sqlite:///jobs.db" # Optional: Path to your SQLite DB, or a full DB URL (e.g., PostgreSQL)
     GROQ_API_KEY="YOUR_GROQ_API_KEY"
     TELEGRAM_BOT_TOKEN="YOUR_TELEGRAM_BOT_TOKEN"
     TELEGRAM_CHAT_ID="YOUR_TELEGRAM_CHAT_ID" # Your user ID or a group chat ID
     ```
     *   **`GROQ_API_KEY`**: Obtain this from the [Groq console](https://console.groq.com/). This is crucial for the `GroqMatcher` to function.
     *   **`TELEGRAM_BOT_TOKEN`**: Create a new bot using [@BotFather](https://t.me/botfather) on Telegram to get your unique token.
-    *   **`TELEGRAM_CHAT_ID`**: Find your Telegram chat ID. You can forward a message from your bot to [@get_id_bot](https://t.me/get_id_bot) or use a similar method.
-    *   **`DATABASE_URL`**: (Optional) Overrides the default SQLite database path. You can specify a different path or connect to a different database system (e.g., PostgreSQL, MySQL) using its respective SQLAlchemy URL.
+    *   **`TELEGRAM_CHAT_ID`**: After you obtain your bot token, send a message to the bot first, then open this URL in a browser https://api.telegram.org/bot{our_bot_token}/getUpdates
+   You will get a JSON response. You can find the chat ID there.
+
+        A full guide on how to get the Telegram bot token, and chat ID can be found here: https://gist.github.com/nafiesl/4ad622f344cd1dc3bb1ecbe468ff9f8a
 
 5.  **Define Scraping Targets**:
-    The system needs to know which Workday URLs to scrape and what criteria to use. Based on `app.utils.config_loader.load_active_targets`, you will need to provide a configuration file (e.g., `targets.json`).
-    *Example `targets.json` (hypothetical structure):*
-    ```json
-    [
-      {
-        "name": "Company A Software Engineering",
-        "url": "https://companyA.workday.com/recruiting/companyA/jobs/HTML/jobs",
-        "keywords": ["Software Engineer", "Python", "Backend", "Remote"],
-        "min_salary": 90000,
-        "location": "Any"
-      },
-      {
-        "name": "Company B Data Science",
-        "url": "https://companyB.workday.com/recruiting/companyB/careers/jobs",
-        "keywords": ["Data Scientist", "Machine Learning", "AI"],
-        "location": "New York"
-      }
-    ]
+    The system needs to know which Workday URLs to scrape and what criteria to use. You will need to edit the `targets.toml` file according to your needs. Make sure that the url is the jobs listing url of the company you are targeting.
+    *Example:*
+    ```toml
+    [[targets]]
+    name = "Sanger Institute"
+    url = "https://sanger.wd103.myworkdayjobs.com/en-GB/WellcomeSangerInstitute"
+    location_filter = "Cambridge"
+    enabled = true
+    
+    [[targets]]
+    name = "Illumina"
+    url = "https://illumina.wd1.myworkdayjobs.com/en-US/illumina-careers"
+    location_filter = "Cambridge"
+    enabled = true
     ```
     *Note: The exact format and location of this `targets` file depend on the implementation of `load_active_targets`. This is a suggested structure.*
+
+6. **Use Your CV**:
+   You can find in the root directory of this project my CV. I didn't care much about hiding it and I thought it would be a good example on where to place yours. You should replace my CV with yours. Unless you want to get notified about jobs that match my CV :)
 
 ## ➡️ Usage Examples
 
@@ -111,7 +88,7 @@ Follow these steps to get `smart-workday` up and running on your local machine:
 To execute the job scraping, parsing, and notification process on demand:
 
 ```bash
-python app/main.py
+python3 -m app.main
 ```
 
 This command performs the following actions:
@@ -134,11 +111,6 @@ To utilize the automated workflow:
 
 The `smart-workday` project offers several configuration points, primarily through environment variables:
 
-*   **`DATABASE_URL`**:
-    *   **Description**: Specifies the database connection string.
-    *   **Default**: `sqlite:///jobs.db` (a SQLite database file located in the project root).
-    *   **Location**: Can be set in `.env` file or as a GitHub Secret.
-    *   **Example**: `postgresql://user:password@host:port/dbname`
 *   **`GROQ_API_KEY`**:
     *   **Description**: Your API key for authentication with the Groq LLM service.
     *   **Location**: Must be set in `.env` file or as a GitHub Secret.
@@ -154,7 +126,7 @@ The `smart-workday` project offers several configuration points, primarily throu
 
 ## 🤝 Contributing Guidelines
 
-We welcome contributions to `smart-workday`! If you have suggestions for improvements, new features, or bug fixes, please follow these guidelines:
+I welcome contributions to `smart-workday`! If you have suggestions for improvements, new features, or bug fixes, please follow these guidelines:
 
 1.  **Fork the repository** on GitHub.
 2.  **Clone your forked repository** to your local development environment.
@@ -181,14 +153,6 @@ We welcome contributions to `smart-workday`! If you have suggestions for improve
     git push origin feature/your-feature-name
     ```
 8.  **Open a Pull Request (PR)** against the `main` branch of the original `smart-workday` repository. Provide a detailed description of your changes and their purpose.
-
-## 📜 License Information
-
-This project is currently **unlicensed**. The owner, MustafaKpn, has not specified a license for this repository.
-
-This means that, by default, all rights are reserved under copyright law. Users may not use, distribute, or modify this code without explicit permission from the copyright holder.
-
-It is strongly recommended that the repository owner chooses an appropriate [open-source license](https://choosealicense.com/) (e.g., MIT, Apache 2.0, GPL) to clarify terms of use and encourage community contributions.
 
 ## 🙏 Acknowledgments
 
