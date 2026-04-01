@@ -51,9 +51,6 @@ Follow these steps to get `smart-workday` up and running on your local machine:
     ```bash
     # If you have a requirements.txt
     pip install -r requirements.txt
-
-    # If installing individually (based on inferred dependencies)
-    # pip install sqlalchemy python-dotenv aiohttp beautifulsoup4 groq python-telegram-bot
     ```
 
 4.  **Configure Environment Variables**:
