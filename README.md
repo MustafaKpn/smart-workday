@@ -128,7 +128,7 @@ The `smart-workday` project offers several configuration points, primarily throu
 
 ## 🤝 Contributing Guidelines
 
-We welcome contributions to `smart-workday`! If you have suggestions for improvements, new features, or bug fixes, please follow these guidelines:
+I welcome contributions to `smart-workday`! If you have suggestions for improvements, new features, or bug fixes, please follow these guidelines:
 
 1.  **Fork the repository** on GitHub.
 2.  **Clone your forked repository** to your local development environment.
@@ -155,14 +155,6 @@ We welcome contributions to `smart-workday`! If you have suggestions for improve
     git push origin feature/your-feature-name
     ```
 8.  **Open a Pull Request (PR)** against the `main` branch of the original `smart-workday` repository. Provide a detailed description of your changes and their purpose.
-
-## 📜 License Information
-
-This project is currently **unlicensed**. The owner, MustafaKpn, has not specified a license for this repository.
-
-This means that, by default, all rights are reserved under copyright law. Users may not use, distribute, or modify this code without explicit permission from the copyright holder.
-
-It is strongly recommended that the repository owner chooses an appropriate [open-source license](https://choosealicense.com/) (e.g., MIT, Apache 2.0, GPL) to clarify terms of use and encourage community contributions.
 
 ## 🙏 Acknowledgments
 
