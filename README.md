@@ -22,18 +22,6 @@ Before you begin, ensure you have the following installed:
 *   **Git**: For cloning the repository.
 *   **pip**: Python package installer (usually comes with Python).
 
-The project relies on several Python libraries. It's recommended to create a `requirements.txt` file and install them, or you can install them individually:
-
-```bash
-# Recommended: Create a requirements.txt with the following
-# aiohttp         # For async HTTP requests (common for scrapers)
-# beautifulsoup4  # For HTML parsing (common for scrapers)
-# groq            # For Groq LLM API interaction
-# python-dotenv   # For loading environment variables
-# python-telegram-bot # For sending Telegram notifications
-# sqlalchemy      # For database ORM
-# # You might also need other HTTP client libraries like `requests` or `httpx` depending on scraper implementation
-```
 
 To install all dependencies (assuming you created `requirements.txt`):
 
