@@ -81,6 +81,8 @@ Follow these steps to get `smart-workday` up and running on your local machine:
 6. **Use Your CV**:
    You can find in the root directory of this project my CV. I didn't care much about hiding it and I thought it would be a good example on where to place yours. You should replace my CV with yours. Unless you want to get notified about jobs that match my CV :)
 
+**Note**: I am sure the LLM prompt can be optimised further to give more accurate results. You can find it in app/utils/. Make sure to not change the JSON output format.
+
 ## ➡️ Usage Examples
 
 ### Running the Scraper Manually
