@@ -1,7 +1,9 @@
-# app/config/settings.py
 import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent.parent.parent  # project root
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://jobuser:jobpass@localhost:5432/jobsdb"
+    f"sqlite:///{BASE_DIR}/jobs.db"
 )
