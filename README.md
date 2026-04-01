@@ -66,24 +66,20 @@ Follow these steps to get `smart-workday` up and running on your local machine:
    You will get a JSON response. You can find the chat ID there.
 
 5.  **Define Scraping Targets**:
-    The system needs to know which Workday URLs to scrape and what criteria to use. Based on `app.utils.config_loader.load_active_targets`, you will need to provide a configuration file (e.g., `targets.json`).
-    *Example `targets.json` (hypothetical structure):*
-    ```json
-    [
-      {
-        "name": "Company A Software Engineering",
-        "url": "https://companyA.workday.com/recruiting/companyA/jobs/HTML/jobs",
-        "keywords": ["Software Engineer", "Python", "Backend", "Remote"],
-        "min_salary": 90000,
-        "location": "Any"
-      },
-      {
-        "name": "Company B Data Science",
-        "url": "https://companyB.workday.com/recruiting/companyB/careers/jobs",
-        "keywords": ["Data Scientist", "Machine Learning", "AI"],
-        "location": "New York"
-      }
-    ]
+    The system needs to know which Workday URLs to scrape and what criteria to use. You will need to edit the `targets.toml` file according to your need.
+    *Example:*
+    ```toml
+    [[targets]]
+    name = "Sanger Institute"
+    url = "https://sanger.wd103.myworkdayjobs.com/en-GB/WellcomeSangerInstitute"
+    location_filter = "Cambridge"
+    enabled = true
+    
+    [[targets]]
+    name = "Illumina"
+    url = "https://illumina.wd1.myworkdayjobs.com/en-US/illumina-careers"
+    location_filter = "Cambridge"
+    enabled = true
     ```
     *Note: The exact format and location of this `targets` file depend on the implementation of `load_active_targets`. This is a suggested structure.*
 
