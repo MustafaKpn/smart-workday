@@ -25,7 +25,7 @@ class JobRepository:
             inserted = result.rowcount
             return inserted
         
-    def claim_jobs(self, conn):
+    def claim_jobs(self):
         """
         Get ALL jobs that need processing and mark them as 'processing'.
         Uses locking to prevent other workers from grabbing the same jobs.
@@ -44,7 +44,7 @@ class JobRepository:
 
         return jobs
     
-    def mark_completed(self, job_id: int, score: float, reasoning: str, extracted: Dict = None):
+    def mark_completed(self, job_id: int, score: float, reasoning: str):
         """Mark job as completed and save results to parsed_jobs"""
         
         with self.engine.connect() as conn:
@@ -69,6 +69,16 @@ class JobRepository:
                 "reasoning": reasoning
             })
             
+            conn.commit()
+
+    def mark_failed(self, job_id: int):
+        """Mark job as failed"""
+        with self.engine.connect() as conn:
+            conn.execute(text("""
+                UPDATE raw_jobs
+                SET status = 'failed', processed_at = NOW()
+                WHERE id = :id
+            """), {"id": job_id})
             conn.commit()
 
 

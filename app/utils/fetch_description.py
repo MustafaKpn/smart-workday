@@ -2,7 +2,7 @@
 import logging
 from playwright.async_api import async_playwright
 
-logger = logging.getLogger("__name__")
+logger = logging.getLogger(__name__)
 
 
 async def fetch_description(url: str) -> str:

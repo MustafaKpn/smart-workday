@@ -95,10 +95,7 @@ class GroqMatcher:
 
         except Exception as e:
             logger.error(f"Error processing job with id: {job.get('id')}\nError: {str(e)}")
-
-            return {"job": job.get('id'),
-                    "score": 0.0,
-                    "reasoning": f"Error: {str(e)}"}
+            raise Exception(f"LLM processing error for job id {job.get('id')}: {str(e)}")
 
     def _parse_response(self, response: str):
         """Parse LLM response - non-recursive with fallbacks."""
