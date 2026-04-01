@@ -1,4 +1,4 @@
-# smart-workday 🚀
+# Smart Workday 
 
 [![GitHub Actions Workflow Status](https://github.com/MustafaKpn/smart-workday/actions/workflows/scrape.yml/badge.svg)](https://github.com/MustafaKpn/smart-workday/actions/workflows/scrape.yml)
 
