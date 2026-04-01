@@ -59,7 +59,7 @@ async def process_jobs():
                     repo.mark_completed(parsed.get('id'), parsed.get('score'), parsed.get('reasoning'))
 
                     # Step 3: if meets criteria, send Telegram message
-                    if float(parsed.get("score", 0)) >= 2:
+                    if float(parsed.get("score", 0)) >= 7.5:
                         job_info = repo.get_job_by_id(job['id'])
                         logger.info(f"Job {job['id']} passed criteria with score {parsed.get('score')}")
                         message = build_telegram_message(job_info, parsed)
