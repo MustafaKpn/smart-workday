@@ -3,7 +3,7 @@ name: Daily Scraper
 on:
   schedule:
     
-    - cron: '40 18 * * *'
+    - cron: '46 18 * * *'
   workflow_dispatch:
 
 permissions:
