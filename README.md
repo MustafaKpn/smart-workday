@@ -113,11 +113,6 @@ To utilize the automated workflow:
 
 The `smart-workday` project offers several configuration points, primarily through environment variables:
 
-*   **`DATABASE_URL`**:
-    *   **Description**: Specifies the database connection string.
-    *   **Default**: `sqlite:///jobs.db` (a SQLite database file located in the project root).
-    *   **Location**: Can be set in `.env` file or as a GitHub Secret.
-    *   **Example**: `postgresql://user:password@host:port/dbname`
 *   **`GROQ_API_KEY`**:
     *   **Description**: Your API key for authentication with the Groq LLM service.
     *   **Location**: Must be set in `.env` file or as a GitHub Secret.
