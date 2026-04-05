@@ -8,4 +8,4 @@ enabled = true
 name = "Illumina"
 url = "https://illumina.wd1.myworkdayjobs.com/en-US/illumina-careers"
 location_filter = "Cambridge"
-enabled = true
+enabled = false
