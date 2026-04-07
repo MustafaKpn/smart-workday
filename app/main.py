@@ -37,6 +37,7 @@ async def process_jobs():
     repo = JobRepository(engine)
 
     for target in targets:
+        logger.info(f"Processing target: {target.name} for location filter: {target.location_filter}")
         try:
             scraper = WorkdayScraper(target.location_filter)
             jobs = await scraper.scrape(target.url)
