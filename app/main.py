@@ -53,11 +53,12 @@ async def process_jobs():
                 try:
                     # Step 1: run LLM
                     parsed = await matcher.process_job(job)
-                    logger.info(f"Processed job {job['id']} with score {parsed.get('score')}")
 
                     # Step 2: save results
                     repo.mark_completed(parsed.get('id'), parsed.get('score'), parsed.get('reasoning'))
 
+
+                    logger.info(f"Processed job {job['id']} with score {parsed.get('score')}")
                     # Step 3: if meets criteria, send Telegram message
                     if float(parsed.get("score", 0)) >= 7.5:
                         job_info = repo.get_job_by_id(job['id'])
@@ -67,6 +68,7 @@ async def process_jobs():
 
 
                 except Exception as e:
+                    repo.mark_failed(job['id'])
                     logger.error(f"Error processing job {job['id']}: {e}")
 
                     # mark failed
