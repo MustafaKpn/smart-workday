@@ -8,3 +8,9 @@ name = "Illumina"
 url = "https://illumina.wd1.myworkdayjobs.com/en-US/illumina-careers"
 location_filter = ""
 enabled = true
+[[targets]]
+name = "Bupa"
+url = "https://bupa.wd3.myworkdayjobs.com/en-GB/EXT_CAREER"
+location_filter = ""
+enabled = true
+
