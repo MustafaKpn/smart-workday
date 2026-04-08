@@ -4,9 +4,6 @@ Scraper for Workday-based career sites
 #app/scraper/scrape.py
 from typing import List, Dict
 from playwright.async_api import async_playwright
-from app.config import engine
-from app.storage.db import raw_jobs
-from sqlalchemy.dialects.postgresql import insert
 from urllib.parse import urljoin
 import xxhash
 import logging
@@ -26,6 +23,8 @@ class WorkdayScraper:
         """Scrape jobs from a Workday career site"""
         logger.info(f"Scraping: {url}")
         
+        all_jobs = []
+
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=self.headless)
             context = await browser.new_context(
@@ -77,7 +76,7 @@ class WorkdayScraper:
                     await btn.click()
                     await page.wait_for_timeout(2000)
 
-                    all_jobs = await self._extract_jobs(page, url)
+                    all_jobs.extend(await self._extract_jobs(page, url))
                 
                 return all_jobs
             

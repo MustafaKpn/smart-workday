@@ -48,7 +48,6 @@ async def process_jobs():
 
             if not jobs_to_process:
                 logger.warning("No jobs to process")
-                return
             
             for job in jobs_to_process:
                 try:
@@ -77,8 +76,16 @@ async def process_jobs():
             logger.error(f"Scrape failed for {target.name}: {e}")
 
 
+async def test_scraper():
+    url = "https://illumina.wd1.myworkdayjobs.com/en-US/illumina-careers"
+    scraper = WorkdayScraper()
+    jobs = await scraper.scrape(url)
+    print([job['title'] for job in jobs])
+    print(len(jobs))
+
 async def main():
-    await process_jobs()
+    # await process_jobs()
+    await test_scraper()
 
 if __name__ == "__main__":
     asyncio.run(main())
