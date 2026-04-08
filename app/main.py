@@ -75,17 +75,8 @@ async def process_jobs():
         except Exception as e:
             logger.error(f"Scrape failed for {target.name}: {e}")
 
-
-async def test_scraper():
-    url = "https://illumina.wd1.myworkdayjobs.com/en-US/illumina-careers"
-    scraper = WorkdayScraper()
-    jobs = await scraper.scrape(url)
-    print([job['title'] for job in jobs])
-    print(len(jobs))
-
 async def main():
-    # await process_jobs()
-    await test_scraper()
+    await process_jobs()
 
 if __name__ == "__main__":
     asyncio.run(main())
