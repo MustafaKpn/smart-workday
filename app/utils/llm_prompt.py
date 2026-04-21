@@ -24,42 +24,61 @@ You MUST return valid JSON only.
 STEP 0 - DOMAIN RELEVANCE GATE (HARD FILTER)
 ================================
 
-Before any scoring, determine if the candidate's background is in the same
-professional domain as the job.
+Before any scoring, determine if the candidate has relevant professional experience
+for the job domain.
 
 Define domain by extracting:
-- candidate_domain: The primary professional field from the CV
-  (e.g., "software engineering", "medicine", "finance", "nursing", "marketing")
+- candidate_domains: ALL professional fields represented in the CV based on actual
+  work experience (e.g., ["bioinformatics", "software engineering"], ["nursing", "healthcare administration"])
 - job_domain: The primary professional field required by the job
-  (e.g., "software engineering", "medicine", "finance", "nursing", "marketing")
+  (e.g., "software engineering", "medicine", "data science")
 
-Rules:
-- Extract these independently. Do NOT match them yourself yet.
-- Domains are DIFFERENT if they require fundamentally different professional
-  training, licensing, or career tracks.
+Rules for extraction:
+- Extract candidate_domains from ACTUAL ROLES HELD, not just education
+- A person can have multiple domains if they've worked in multiple fields
+- List all domains where candidate has >3 months professional experience
+- Don't limit to one domain - hybrid backgrounds are real
 
-Examples of DIFFERENT domains:
-  - software engineer vs. nurse -> DIFFERENT
-  - data scientist vs. surgeon -> DIFFERENT
-  - accountant vs. mechanical engineer -> DIFFERENT
-  - backend developer vs. frontend developer -> SAME
-  - bioinformatics scientist vs. software engineer -> BORDERLINE (see below)
-  - data analyst vs. data scientist -> SAME
+Domain matching logic:
+1. DIRECT MATCH: candidate has professional experience in the exact job domain
+   -> domain_mismatch = false, proceed to scoring
 
-BORDERLINE rule: If the CV has substantial direct experience (>6 months) in
-the job's domain as a primary role, treat as SAME. If only tangential exposure,
-treat as DIFFERENT.
+2. TRANSFERABLE MATCH: candidate domain is different BUT has substantial overlap
+   in required technical skills or work output
+   
+   Examples of transferable domains:
+   - Bioinformatics <-> Software Engineering (both write production code, use same tech stacks)
+   - Data Science <-> Machine Learning Engineering (both build models, similar tools)
+   - DevOps <-> SRE (overlapping responsibilities and tooling)
+   - Research Scientist <-> Applied Scientist (similar analytical approaches)
+   
+   Check: Do >50% of the job's REQUIRED technical skills appear in the CV?
+   If YES -> domain_mismatch = false, proceed to scoring with NOTE
+   If NO -> continue to rule 3
 
-If domains are DIFFERENT:
-  -> Set domain_mismatch = true
-  -> Set final_score = 0
-  -> Set reasoning = "Domain mismatch: candidate background is [candidate_domain],
-     job requires [job_domain]. No further scoring performed."
-  -> Output the JSON immediately and STOP. Do not proceed to Step 1.
+3. UNRELATED DOMAINS: fundamentally different professional training with no skill overlap
+   
+   Examples of unrelated domains:
+   - Registered Nurse -> Mechanical Engineer (different licensing, training, daily work)
+   - Marketing Manager -> Surgeon (no transferable technical skills)
+   - Teacher -> Financial Analyst (completely different skill sets)
+   
+   If domains are unrelated AND skill overlap <30%:
+   -> domain_mismatch = true
+   -> final_score = 0
+   -> reasoning = "Domain mismatch: candidate background is [candidate_domains],
+      job requires [job_domain]. Insufficient transferable skills. No further scoring."
+   -> Output JSON and STOP
 
-If domains are SAME or BORDERLINE (with qualifying experience):
-  -> Set domain_mismatch = false
-  -> Proceed to Step 1.
+CRITICAL RULES:
+- Do NOT reject hybrid professionals (e.g., bioinformatics + software engineering)
+- If candidate has WORKED in the job's domain, even if education differs, treat as SAME
+- Technical skill overlap >50% overrides domain labels
+- When in doubt about transferability, proceed to scoring and let skills/experience sections decide
+- Former employees of the hiring company should NEVER get domain_mismatch = true unless
+  the role they're applying for is completely unrelated to what they did there
+
+If domain_mismatch = false, proceed to Step 1.
 
 ================================
 STEP 1 - EXTRACT INFORMATION
